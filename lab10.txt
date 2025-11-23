@@ -1,0 +1,59 @@
+import java.util.Scanner;
+
+public class LeakyBucketQueue {
+   private int[] queue = new int[5];
+   private int front = 0;
+   private int rear = 0;
+   private final int maxSize = 5;
+
+   public LeakyBucketQueue() {
+   }
+
+   void insertPackets(int var1) {
+      Scanner var2 = new Scanner(System.in);
+
+      for(int var3 = 0; var3 < var1; ++var3) {
+         System.out.println("Enter packet" + (var3 + 1) + ":");
+         int var4 = var2.nextInt();
+         if (this.rear >= 5) {
+            System.out.println("Queue is full!! Packet" + var4 + "is lost.");
+            break;
+         }
+
+         this.queue[this.rear] = var4;
+         ++this.rear;
+      }
+
+   }
+
+   void leakPackets() {
+      if (this.rear == 0) {
+         System.out.println("Queue is empty..");
+      } else {
+         System.out.println("lEAKING PACKETS-----");
+
+         for(int var1 = this.front; var1 < this.rear; ++var1) {
+            try {
+               Thread.sleep(1000L);
+            } catch (InterruptedException var3) {
+               System.out.println("Error in thread sleep");
+            }
+
+            int var10001 = this.queue[var1];
+            System.out.println("Leaked Packet:" + var10001);
+         }
+
+         this.rear = 0;
+      }
+
+   }
+
+   public static void main(String[] var0) {
+      LeakyBucketQueue var1 = new LeakyBucketQueue();
+      Scanner var2 = new Scanner(System.in);
+      System.out.println("Enter the number of packets to send:");
+      int var3 = var2.nextInt();
+      var1.insertPackets(var3);
+      var1.leakPackets();
+   }
+}

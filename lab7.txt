@@ -1,0 +1,48 @@
+UDPServer
+import java.net.*;
+import java.util.Scanner;
+public class UDPServer { public static void main(String[] args) throws Exception {
+DatagramSocket serverSocket = new DatagramSocket();
+InetAddress clientAddress = InetAddress.getByName("localhost");
+Scanner scanner = new Scanner(System.in);
+System.out.println("Server is ready. Type messages to send to client:");
+while (true) {
+System.out.print("Server: ");
+String message = scanner.nextLine();
+byte[] buffer = message.getBytes();
+DatagramPacket packet = new DatagramPacket( buffer, buffer.length,
+clientAddress, 9876);
+
+serverSocket.send(packet);
+if (message.equalsIgnoreCase("exit"))
+{
+break;
+}
+}
+serverSocket.close();
+System.out.println("Server closed.");
+}
+}
+UDPClient
+import java.net.*;
+public class UDPClient
+{
+public static void main(String[] args) throws Exception
+{
+DatagramSocket clientSocket = new DatagramSocket(9876);
+byte[] buffer = new byte[1024];
+System.out.println("Client is running... waiting for server messages.\n");
+while (true)
+{
+DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+clientSocket.receive(packet);
+String message = new String(packet.getData(), 0, packet.getLength());
+System.out.println("Message from Server: " + message);
+if (message.equalsIgnoreCase("exit"))
+{
+break;
+}
+}
+clientSocket.close(); System.out.println("Client closed.");
+}
+}

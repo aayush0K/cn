@@ -1,0 +1,94 @@
+Server
+import java.io.*;
+import java.net.*;
+public class TCPFileServer
+{
+public static void main(String[] args)
+{
+final int PORT = 5000;
+try (ServerSocket serverSocket = new ServerSocket(PORT))
+{
+System.out.println("Server started on port " + PORT);
+while (true)
+{
+Socket clientSocket = serverSocket.accept();
+
+System.out.println("Client connected: " + clientSocket.getInetAddress());
+// Use try-with-resources to auto-close streams
+try ( BufferedReader in = new BufferedReader(new
+InputStreamReader(clientSocket.getInputStream())); BufferedWriter out = new
+BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())); ) {
+String fileName = in.readLine(); System.out.println("Requested file: " +
+fileName);
+File file = new File(fileName);
+if (file.exists() && !file.isDirectory())
+{ // Send success message
+out.write("FOUND\n");
+out.flush();
+// Send file content line by line
+BufferedReader fileReader = new BufferedReader(new FileReader(file));
+String line;
+while ((line = fileReader.readLine()) != null)
+{
+out.write(line + "\n");
+}
+fileReader.close();
+}
+else
+{
+out.write("ERROR: File not found\n");
+}
+out.flush();
+}
+catch (IOException e)
+{
+System.err.println("Error handling client: " + e.getMessage());
+}
+finally
+{
+clientSocket.close();
+System.out.println("Connection closed.");
+
+} } }
+catch (IOException e)
+{ System.err.println("Server error: " + e.getMessage());
+} } }
+
+Client
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+public class TCPFileClient {
+public static void main(String[] args) {
+final String SERVER_IP = "localhost"; // or server IP
+final int SERVER_PORT = 5000;
+try (
+Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+BufferedReader in = new BufferedReader(new
+InputStreamReader(socket.getInputStream()));
+BufferedWriter out = new BufferedWriter(new
+OutputStreamWriter(socket.getOutputStream()));
+Scanner scanner = new Scanner(System.in);
+) {
+System.out.print("Enter the filename to request: ");
+String fileName = scanner.nextLine();
+// Send filename to server
+out.write(fileName + "\n");
+out.flush();
+// Read response header
+String response = in.readLine();
+if ("FOUND".equals(response)) {
+
+System.out.println("File contents:");
+String line;
+while ((line = in.readLine()) != null) {
+System.out.println(line);
+}
+} else {
+System.out.println(response); // error message
+}
+} catch (IOException e) {
+System.err.println("Client error: " + e.getMessage());
+}
+}
+}
